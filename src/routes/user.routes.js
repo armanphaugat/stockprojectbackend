@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { buystock, getAllTransactionHistory, getAllUserStocks, getBoard, loginUser, logoutUser, refreshAccessToken, registerUser, sellStock } from "../controllers/user.controller.js";
+import { buystock, deleteUser, getAllTransactionHistory, getAllUserStocks, getBoard, loginUser, logoutUser, refreshAccessToken, registerUser, sellStock } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import rateLimiter from "../utils/rateLimiter.js";
 
 const router=Router()
 router.post("/register",rateLimiter({capacity:2,refillRate:1}),registerUser)
 router.post("/login",rateLimiter({capacity:10,refillRate:1}),loginUser)
+router.post("/delete",rateLimiter({capacity:10,refillRate:1}),deleteUser)
 router.post("/logout",verifyJWT,rateLimiter({capacity:5,refillRate:1}),logoutUser)
 router.post("/refresh-token",verifyJWT,rateLimiter({capacity:5,refillRate:1}),refreshAccessToken)
 router.post("/buy-stock",verifyJWT,rateLimiter({capacity:5,refillRate:1}),buystock)

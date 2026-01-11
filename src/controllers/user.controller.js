@@ -71,6 +71,41 @@ const loginUser = asyncHandler(async (req, res) => {
       )
     )
 })
+const deleteUser = asyncHandler(async (req, res) => {
+  const userId = req.user?.id
+
+  if (!userId) {
+    throw new ApiError(401, "Unauthorized request")
+  }
+
+  const [result] = await pool.query(
+    "DELETE FROM Users WHERE id = ?",
+    [userId]
+  )
+
+  if (result.affectedRows === 0) {
+    throw new ApiError(404, "User not found")
+  }
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict"
+  }
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "User deleted successfully"
+      )
+    )
+})
+
 const refreshAccessToken=asyncHandler(async(req,res)=>{
     const incomingRefreshToken=req.cookies.refreshToken || req.body.refreshToken
     if(!incomingRefreshToken) throw new ApiError(401,"Unauthorised Request")
@@ -309,5 +344,4 @@ const getBoard=asyncHandler(async(req,res)=>{
   )
 })
 
-
-export {registerUser,loginUser,logoutUser,refreshAccessToken,buystock,getAllUserStocks,getAllTransactionHistory,sellStock,getBoard}
+export {registerUser,loginUser,logoutUser,refreshAccessToken,buystock,getAllUserStocks,getAllTransactionHistory,sellStock,getBoard,deleteUser}
