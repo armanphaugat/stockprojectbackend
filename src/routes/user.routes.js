@@ -14,4 +14,5 @@ router.get("/get-all-stocks",verifyJWT,rateLimiter({capacity:5,refillRate:1}),ge
 router.get("/get-all-trans",verifyJWT,rateLimiter({capacity:5,refillRate:1}),getAllTransactionHistory)
 router.patch("/sell-stock",verifyJWT,rateLimiter({capacity:5,refillRate:1}),sellStock)
 router.patch("/leaderboard",verifyJWT,rateLimiter({capacity:5,refillRate:1}),getBoard)
+router.get("/get-wallet",verifyJWT,rateLimiter({capacity:5,refillRate:1}),getWallet)
 export {router as userRouter};
