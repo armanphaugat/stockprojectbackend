@@ -343,5 +343,30 @@ const getBoard=asyncHandler(async(req,res)=>{
     new ApiResponse(201,{leaderboard},"LeaderBoard Fetched SuccesFully")
   )
 })
+const getWallet = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
 
-export {registerUser,loginUser,logoutUser,refreshAccessToken,buystock,getAllUserStocks,getAllTransactionHistory,sellStock,getBoard,deleteUser}
+  if (!userId) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  const [rows] = await pool.query(
+    "SELECT wallet_id, balance, updated_at FROM wallet WHERE user_id = ?",
+    [userId]
+  );
+
+  if (rows.length === 0) {
+    throw new ApiError(404, "Wallet not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      rows[0],
+      "Wallet fetched successfully"
+    )
+  );
+});
+
+//more required functions like logout, refresh token etc.
+export {registerUser,loginUser,logoutUser,refreshAccessToken,buystock,getAllUserStocks,getAllTransactionHistory,sellStock,getBoard,deleteUser,getWallet}
