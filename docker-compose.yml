@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   backend:
-    image: blaz305/stock-nodejs:latest 
+    image: blaz305/stock-nodejs:latest
     container_name: stock-backend
     restart: always
     ports:
@@ -12,9 +12,9 @@ services:
     depends_on:
       - mysql
       - redis
-    volumes:
-      - .:/app
     command: npm run dev
+    networks:
+      - stock-network
 
   mysql:
     image: mysql:8.0
@@ -27,6 +27,8 @@ services:
       MYSQL_PASSWORD: stockpass
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - stock-network
 
   redis:
     image: redis:7
@@ -34,6 +36,15 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - stock-network
 
 volumes:
   mysql_data:
+  redis_data:
+
+networks:
+  stock-network:
+    driver: bridge
