@@ -25,10 +25,10 @@ const getAllStocks=asyncHandler(async(req,res)=>{
     )
 })
 const getGraphStock=asyncHandler(async(req,res)=>{
-    const {name,duration}=req.body
+    const {name,duration}=req?.query
     if(!name) throw new ApiError(400,"Please Provide The Name of stock")
     if(!duration || isNaN(duration || duration<=0)) throw new ApiError(400,"Please Provide the Duration")
-    const  [graph]=await pool.query(`Select * from stockhistory where stock_name=? ORDER BY created_at ASC Limit ${duration}`,[name])
+    const  [graph]=await pool.query(`Select * from stockhistory where stock_name=? Limit ${duration}`,[name])
     if(graph.length===0) throw new ApiError(404,"No Graph Found")
     return res.status(201).json(
         new ApiResponse(201,graph,"Graph points Fetched SuccesFully")

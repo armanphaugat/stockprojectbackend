@@ -1,12 +1,17 @@
 import {Queue,Worker} from "bullmq";
 import { pool } from "../db/index.js";
 import IORedis, { Redis } from "ioredis";
-const connection=new IORedis({maxRetriesPerRequest:null});
+const connection = new IORedis({
+    host: process.env.REDIS_HOST || "127.0.0.1",
+    port: process.env.REDIS_PORT || 6379,
+    maxRetriesPerRequest: null
+});
+
 const stockQueue=new Queue("stock-price-simulation",{connection})
 const stimulateStockPrices=async()=>{
     const [stocks]=await pool.query("Select * From stock");
     for(const stock of stocks){
-        const changePercent=(Math.random()*50-25)/100;
+        const changePercent = (Math.random() * 35 - 10) / 100;
         const newPrice=+(stock.price*(1+changePercent)).toFixed(2)
         await pool.query("update stock set last_price=?,price=? where stock_id=?",[stock.price,newPrice,stock.stock_id])
         await pool.query("insert into stockhistory (stock_name,price) Values(?,?)",[stock.stock_name,newPrice]);
@@ -62,11 +67,10 @@ const getLeaderBoard=async()=>{
 new Worker("stock-price-simulation",async job=>{
     await stimulateStockPrices()
     await updateLeaderboard()
-},{connection})
-
+},{connection,lockDuration: 5 * 60 * 1000,concurrency: 1})
 const scheduleStockSimulation=async()=>{
     await stockQueue.add("stock-price-simulation",{},{
-        repeat:{every:30*60*1000},
+        repeat:{every:10*60*1000},
         removeOnComplete:true,
         removeOnFail:true
     })

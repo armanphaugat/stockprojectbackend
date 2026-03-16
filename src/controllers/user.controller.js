@@ -351,7 +351,7 @@ const getWallet = asyncHandler(async (req, res) => {
   }
 
   const [rows] = await pool.query(
-    "SELECT wallet_id, balance, updated_at FROM wallet WHERE user_id = ?",
+    "SELECT * FROM wallet WHERE user_id = ?",
     [userId]
   );
 
@@ -367,6 +367,49 @@ const getWallet = asyncHandler(async (req, res) => {
     )
   );
 });
+const updateBalance = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  const { amount, type } = req.body; // type: "credit" | "debit"
+
+  if (!userId) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  if (!amount || amount <= 0) {
+    throw new ApiError(400, "Invalid amount");
+  }
+
+  if (!["credit", "debit"].includes(type)) {
+    throw new ApiError(400, "Invalid transaction type");
+  }
+
+  const [rows] = await pool.query(
+    "SELECT balance FROM wallet WHERE user_id = ?",
+    [userId]
+  );
+
+  if (rows.length === 0) {
+    throw new ApiError(404, "Wallet not found");
+  }
+
+  const currentBalance = rows[0].balance;
+
+  if (type === "debit" && currentBalance < amount) {
+    throw new ApiError(400, "Insufficient balance");
+  }
+
+  const newBalance =
+    type === "credit" ? currentBalance + amount : currentBalance - amount;
+
+  await pool.query(
+    "UPDATE wallet SET balance = ? WHERE user_id = ?",
+    [newBalance, userId]
+  );
+
+  return res.status(200).json(
+    new ApiResponse(200, { balance: newBalance }, "Balance updated successfully")
+  );
+});
 
 //more required functions like logout, refresh token etc.
-export {registerUser,loginUser,logoutUser,refreshAccessToken,buystock,getAllUserStocks,getAllTransactionHistory,sellStock,getBoard,deleteUser,getWallet}
+export {registerUser,loginUser,logoutUser,updateBalance,refreshAccessToken,buystock,getAllUserStocks,getAllTransactionHistory,sellStock,getBoard,deleteUser,getWallet}

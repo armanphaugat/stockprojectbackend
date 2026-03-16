@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { buystock, deleteUser, getAllTransactionHistory, getAllUserStocks, getBoard, loginUser, logoutUser, refreshAccessToken, registerUser, sellStock } from "../controllers/user.controller.js";
+import { buystock, deleteUser, getAllTransactionHistory, getAllUserStocks, getBoard, loginUser, logoutUser, refreshAccessToken, registerUser, sellStock ,getWallet} from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import rateLimiter from "../utils/rateLimiter.js";
 
@@ -15,4 +15,5 @@ router.get("/get-all-trans",verifyJWT,rateLimiter({capacity:5,refillRate:1}),get
 router.patch("/sell-stock",verifyJWT,rateLimiter({capacity:5,refillRate:1}),sellStock)
 router.patch("/leaderboard",verifyJWT,rateLimiter({capacity:5,refillRate:1}),getBoard)
 router.get("/get-wallet",verifyJWT,rateLimiter({capacity:5,refillRate:1}),getWallet)
+router.patch("/update-balance", verifyJWT, rateLimiter({ capacity: 5, refillRate: 1 }), updateBalance);
 export {router as userRouter};
