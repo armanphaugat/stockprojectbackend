@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { buystock, deleteUser, getAllTransactionHistory, getAllUserStocks, getBoard, loginUser, logoutUser, refreshAccessToken, registerUser, sellStock ,getWallet} from "../controllers/user.controller.js";
+import { buystock, deleteUser, getAllTransactionHistory, getAllUserStocks, getBoard, loginUser, logoutUser, refreshAccessToken, registerUser, sellStock ,getWallet,updateBalance} from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import rateLimiter from "../utils/rateLimiter.js";
 
